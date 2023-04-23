@@ -8,6 +8,9 @@ app.layout = html.Div(children=[
 ])
 ratp =pd.read_csv("trafic-annuel-entrant-par-station-du-reseau-ferre-2021.csv", sep=';')
 idf = pd.read_csv("emplacement-des-gares-idf.csv", sep=';')
+idf[['lat', 'lng']] = idf['Geo Point'].str.split(',', expand=True)
+idf['lat'] = idf['lat'].str.strip().astype(float)
+idf['lng'] = idf['lng'].str.strip().astype(float)
 
 app.layout = (html.Div(children=[
     html.H1("Quelques données "),
@@ -49,6 +52,12 @@ app.layout = (html.Div(children=[
         figure=px.bar(idf.groupby('ligne'), x=idf.groupby('ligne').groups.keys(), y=idf.groupby('ligne').size())
     ),
 
+    html.H2('Carte des stations',style={'textAlign' : 'center','background':'black','color': 'white'}),
+    html.Hr(),
+    dcc.Graph(
+        id="map-graph",
+        figure=px.scatter_mapbox(idf, lat='lat',lon='lng',zoom=10,color="exploitant").update_layout(mapbox_style='open-street-map')
+    )
 
 
 ]))
